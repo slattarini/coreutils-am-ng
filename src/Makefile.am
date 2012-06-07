@@ -309,6 +309,8 @@ remove_LDADD =
 mv_LDADD += $(remove_LDADD)
 rm_LDADD += $(remove_LDADD)
 
+AM_VARTYPOS_WHITELIST = copy_LDADD remove_LDADD
+
 # for eaccess, euidaccess
 copy_LDADD += $(LIB_EACCESS)
 remove_LDADD += $(LIB_EACCESS)
