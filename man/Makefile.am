@@ -94,7 +94,7 @@ ASSORT = LC_ALL=C sort
 
 # Ensure that for each .x file in this directory, there is a
 # corresponding .1 file in the definition of $(dist_man1_MANS) above.
-# But since that expansion usually lacks programs like su and arch,
+# But since that expansion usually lacks programs like arch and hostname,
 # add them here manually.
 .PHONY: check-x-vs-1
 check-x-vs-1:
