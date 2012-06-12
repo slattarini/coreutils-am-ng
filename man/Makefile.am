@@ -29,14 +29,17 @@ common_dep = ../.version
 all_programs := $(strip $(filter-out [, $(shell \
   cd $(top_srcdir)/src && MAKEFLAGS= $(MAKE) -s all_programs.list)))
 
-# Note that 'arch' depends on 'uname.c'.
-arch.1: $(common_dep) $(srcdir)/arch.x $(top_srcdir)/src/uname.c
-# Note that 'dir' depends on 'ls.c', since that's where its --help text is.
-dir.1: $(common_dep) $(srcdir)/dir.x $(top_srcdir)/src/ls.c
+get-c-for-man = $(strip \
+  $(patsubst arch, uname, \
+  $(patsubst dir, ls, \
+  $(patsubst vdir, ls, \
+  $(patsubst sha%sum, md5sum, \
+  $1))))).c
 
 # Dependencies for each generated man page.
-$(foreach p,$(patsubst ginstall,install,$(filter-out $(all_programs))), \
-  $(eval $p.1: $(common_dep) $(srcdir)/$p.x $(top_srcdir)/src/$p.c))
+$(foreach p, $(patsubst ginstall,install,$(all_programs)), \
+  $(eval $p.1: $(common_dep) $(srcdir)/$p.x) \
+  $(eval $p.1: $(top_srcdir)/src/$(call get-c-for-man,$p)))
 
 # This is required so that changes to e.g., emit_bug_reporting_address
 # provoke regeneration of all $(MAN) files.
