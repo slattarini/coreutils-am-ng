@@ -4,6 +4,7 @@
 *.o
 *.trs
 */.deps
+*/.am/
 *~
 ._bootmp
 .gdb-history
