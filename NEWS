@@ -18,17 +18,20 @@ GNU coreutils NEWS                                    -*- outline -*-
   ls --color would mis-color relative-named symlinks in /
   [bug introduced in coreutils-8.17]
 
+  split now ensures it doesn't overwrite the input file with generated output.
+  [the bug dates back to the initial implementation]
+
   stat and df now report the correct file system usage,
   in all situations on GNU/Linux, by correctly determining the block size.
   [df bug since coreutils-5.0.91, stat bug since the initial implementation]
 
-  tail -f no longer tries to use inotify on PanFS file systems
+  tail -f no longer tries to use inotify on AUFS or PanFS file systems
   [you might say this was introduced in coreutils-7.5, along with inotify
    support, but even now, its magic number isn't in the usual place.]
 
 ** New features
 
-  stat -f recognizes the new remote file system type, panfs.
+  stat -f recognizes the new remote file system types: aufs, panfs.
 
 ** Changes in behavior
 

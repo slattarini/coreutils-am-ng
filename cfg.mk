@@ -420,7 +420,7 @@ sc_preprocessor_indentation:
 # someone who was initially listed only in THANKS.in later authors a commit,
 # this rule detects that their pair may now be removed from THANKS.in.
 sc_THANKS_in_duplicates:
-	{ git log --pretty=format:%aN | sort -u;			\
+	@{ git log --pretty=format:%aN | sort -u;			\
 	    cut -b-36 THANKS.in | sed '/^$$/d;s/  *$$//'; }		\
 	  | sort | uniq -d | grep .					\
 	    && { echo '$(ME): remove the above names from THANKS.in'	\
@@ -463,7 +463,7 @@ exclude_file_name_regexp--sc_file_system = \
 exclude_file_name_regexp--sc_prohibit_always_true_header_tests = \
   ^m4/stat-prog\.m4$$
 exclude_file_name_regexp--sc_prohibit_fail_0 = \
-  (^scripts/git-hooks/commit-msg|^tests/init\.sh|Makefile\.am|\.mk)$$
+  (^.*/git-hooks/commit-msg|^tests/init\.sh|Makefile\.am|\.mk|.*\.texi)$$
 exclude_file_name_regexp--sc_prohibit_atoi_atof = ^lib/euidaccess-stat\.c$$
 
 tbi_1 = ^tests/pr/|(^gl/lib/reg.*\.c\.diff|Makefile(\.am)?|\.mk|^man/help2man)$$
@@ -485,3 +485,6 @@ exclude_file_name_regexp--sc_prohibit_test_backticks = \
 # Exempt test.c, since it's nominally shared, and relatively static.
 exclude_file_name_regexp--sc_prohibit_operator_at_end_of_line = \
   ^src/(ptx|test|head)\.c$$
+
+# Exempt pinky and who: their uses of this function appear to be correct.
+exclude_file_name_regexp--sc_prohibit_strncpy = ^src/(pinky|who)\.c$$
