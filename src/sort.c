@@ -911,11 +911,10 @@ create_temp_file (int *pfd, bool survive_fd_exhaustion)
 static FILE *
 stream_open (char const *file, char const *how)
 {
-  if (!file)
-    return stdout;
+  FILE *fp;
+
   if (*how == 'r')
     {
-      FILE *fp;
       if (STREQ (file, "-"))
         {
           have_read_stdin = true;
@@ -924,9 +923,18 @@ stream_open (char const *file, char const *how)
       else
         fp = fopen (file, how);
       fadvise (fp, FADVISE_SEQUENTIAL);
-      return fp;
     }
-  return fopen (file, how);
+  else if (*how == 'w')
+    {
+      if (file && ftruncate (STDOUT_FILENO, 0) != 0)
+        error (SORT_FAILURE, errno, _("%s: error truncating"),
+               quote (file));
+      fp = stdout;
+    }
+  else
+    assert (!"unexpected mode passed to stream_open");
+
+  return fp;
 }
 
 /* Same as stream_open, except always return a non-null value; die on
@@ -968,10 +976,14 @@ xfclose (FILE *fp, char const *file)
 }
 
 static void
-dup2_or_die (int oldfd, int newfd)
+move_fd_or_die (int oldfd, int newfd)
 {
-  if (dup2 (oldfd, newfd) < 0)
-    error (SORT_FAILURE, errno, _("dup2 failed"));
+  if (oldfd != newfd)
+    {
+      if (dup2 (oldfd, newfd) < 0)
+        error (SORT_FAILURE, errno, _("dup2 failed"));
+      close (oldfd);
+    }
 }
 
 /* Fork a child process for piping to and do common cleanup.  The
@@ -1082,10 +1094,8 @@ maybe_create_temp (FILE **pfp, bool survive_fd_exhaustion)
       else if (node->pid == 0)
         {
           close (pipefds[1]);
-          dup2_or_die (tempfd, STDOUT_FILENO);
-          close (tempfd);
-          dup2_or_die (pipefds[0], STDIN_FILENO);
-          close (pipefds[0]);
+          move_fd_or_die (tempfd, STDOUT_FILENO);
+          move_fd_or_die (pipefds[0], STDIN_FILENO);
 
           if (execlp (compress_program, compress_program, (char *) NULL) < 0)
             error (SORT_FAILURE, errno, _("couldn't execute %s"),
@@ -1142,10 +1152,8 @@ open_temp (struct tempnode *temp)
 
     case 0:
       close (pipefds[0]);
-      dup2_or_die (tempfd, STDIN_FILENO);
-      close (tempfd);
-      dup2_or_die (pipefds[1], STDOUT_FILENO);
-      close (pipefds[1]);
+      move_fd_or_die (tempfd, STDIN_FILENO);
+      move_fd_or_die (pipefds[1], STDOUT_FILENO);
 
       execlp (compress_program, compress_program, "-d", (char *) NULL);
       error (SORT_FAILURE, errno, _("couldn't execute %s -d"),
@@ -3636,10 +3644,7 @@ avoid_trashing_input (struct sortfile *files, size_t ntemps,
         {
           if (! got_outstat)
             {
-              if ((outfile
-                   ? stat (outfile, &outstat)
-                   : fstat (STDOUT_FILENO, &outstat))
-                  != 0)
+              if (fstat (STDOUT_FILENO, &outstat) != 0)
                 break;
               got_outstat = true;
             }
@@ -3663,6 +3668,45 @@ avoid_trashing_input (struct sortfile *files, size_t ntemps,
           files[i].name = tempcopy->name;
           files[i].temp = tempcopy;
         }
+    }
+}
+
+/* Scan the input files to ensure all are accessible.
+   Otherwise exit with a diagnostic.
+
+   Note this will catch common issues with permissions etc.
+   but will fail to notice issues where you can open() but not read(),
+   like when a directory is specified on some systems.
+   Catching these obscure cases could slow down performance in
+   common cases.  */
+
+static void
+check_inputs (char *const *files, size_t nfiles)
+{
+  size_t i;
+  for (i = 0; i < nfiles; i++)
+    {
+      if (STREQ (files[i], "-"))
+        continue;
+
+      if (euidaccess (files[i], R_OK) != 0)
+        die (_("cannot read"), files[i]);
+    }
+}
+
+/* Ensure a specified output file can be created or written to,
+   and point stdout to it.  Do not truncate the file.
+   Exit with a diagnostic on failure.  */
+
+static void
+check_output (char const *outfile)
+{
+  if (outfile)
+    {
+      int outfd = open (outfile, O_WRONLY | O_CREAT | O_BINARY, MODE_RW_UGO);
+      if (outfd < 0)
+        die (_("open failed"), outfile);
+      move_fd_or_die (outfd, STDOUT_FILENO);
     }
 }
 
@@ -4619,6 +4663,12 @@ main (int argc, char **argv)
          input is not properly sorted.  */
       exit (check (files[0], checkonly) ? EXIT_SUCCESS : SORT_OUT_OF_ORDER);
     }
+
+  /* Check all inputs are accessible, or exit immediately.  */
+  check_inputs (files, nfiles);
+
+  /* Check output is writable, or exit immediately.  */
+  check_output (outfile);
 
   if (mergeonly)
     {
