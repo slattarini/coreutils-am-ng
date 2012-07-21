@@ -319,6 +319,16 @@ sc_prohibit_test_backticks:
 	halt='use $$(...), not `...` in tests/'				\
 	  $(_sc_search_regexp)
 
+# Programs like sort, ls, expr use PROG_FAILURE in place of EXIT_FAILURE.
+# Others, use the EXIT_CANCELED, EXIT_ENOENT, etc. macros defined in system.h.
+# In those programs, ensure that EXIT_FAILURE is not used by mistake.
+sc_some_programs_must_avoid_exit_failure:
+	@grep -nw EXIT_FAILURE						\
+	    $$(git grep -El '[^T]_FAILURE|EXIT_CANCELED' src)		\
+	  | grep -vE '= EXIT_FAILURE|exit \(.* \?' | grep .		\
+	    && { echo '$(ME): do not use EXIT_FAILURE in the above'	\
+		  1>&2; exit 1; } || :
+
 # Exempt the contents of any usage function from the following.
 _continued_string_col_1 = \
 s/^usage .*?\n}//ms;/\\\n\w/ and print ("$$ARGV\n"),$$e=1;END{$$e||=0;exit $$e}
@@ -457,7 +467,7 @@ exclude_file_name_regexp--sc_prohibit_always-defined_macros = \
 exclude_file_name_regexp--sc_prohibit_empty_lines_at_EOF = ^tests/pr/
 exclude_file_name_regexp--sc_program_name = ^(gl/.*|lib/euidaccess-stat)\.c$$
 exclude_file_name_regexp--sc_file_system = \
-  NEWS|^(tests/init\.cfg|src/df\.c|tests/misc/df-P)$$
+  NEWS|^(tests/init\.cfg|src/df\.c|tests/df/df-P)$$
 exclude_file_name_regexp--sc_prohibit_always_true_header_tests = \
   ^m4/stat-prog\.m4$$
 exclude_file_name_regexp--sc_prohibit_fail_0 = \
@@ -483,6 +493,3 @@ exclude_file_name_regexp--sc_prohibit_test_backticks = \
 # Exempt test.c, since it's nominally shared, and relatively static.
 exclude_file_name_regexp--sc_prohibit_operator_at_end_of_line = \
   ^src/(ptx|test|head)\.c$$
-
-# Exempt pinky and who: their uses of this function appear to be correct.
-exclude_file_name_regexp--sc_prohibit_strncpy = ^src/(pinky|who)\.c$$

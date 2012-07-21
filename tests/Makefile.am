@@ -31,6 +31,7 @@ root_tests =					\
   cp/capability					\
   cp/sparse-fiemap				\
   dd/skip-seek-past-dev				\
+  df/problematic-chars				\
   install/install-C-root			\
   ls/capability					\
   ls/nameless-uid				\
@@ -166,7 +167,6 @@ TESTS =						\
   misc/pr					\
   misc/join					\
   pr/pr-tests					\
-  misc/df-P					\
   misc/pwd-option				\
   misc/chcon-fail				\
   misc/cut					\
@@ -186,7 +186,6 @@ TESTS =						\
   misc/csplit-heap				\
   misc/date-sec					\
   misc/dircolors				\
-  misc/df					\
   misc/dirname					\
   misc/env-null					\
   misc/expand					\
@@ -373,6 +372,8 @@ TESTS =						\
   cp/src-base-dot				\
   cp/symlink-slash				\
   cp/thru-dangling				\
+  df/header					\
+  df/df-P					\
   df/unreadable					\
   dd/direct					\
   dd/misc					\

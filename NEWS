@@ -8,6 +8,16 @@ GNU coreutils NEWS                                    -*- outline -*-
   processes will not intersperse their output.
   [the bug dates back to the initial implementation]
 
+  date -d "$(printf '\xb0')" would print 00:00:00 with today's date
+  rather than diagnosing the invalid input.  Now it reports this:
+  date: invalid date '\260'
+  [This bug was present in "the beginning".]
+
+  df no longer outputs control characters present in the mount point name.
+  Such characters are replaced with '?', so for example, scripts consuming
+  lines output by df, can work reliably.
+  [This bug was present in "the beginning".]
+
   head --lines=-N (-n-N) now resets the read pointer of a seekable input file.
   This means that "head -n-3" no longer consumes all of its input, and lines
   not output by head may be processed by other programs.  For example, this
@@ -46,6 +56,10 @@ GNU coreutils NEWS                                    -*- outline -*-
   sort avoids redundant processing in the presence of inaccessible inputs,
   or unwritable output.  Sort now diagnoses certain errors at start-up,
   rather than after potentially expensive processing.
+
+  sort now allocates no more than 75% of physical memory by default,
+  to better share system resources, and thus operate more efficiently.
+  [The default max memory usage changed from 50% to 100% in coreutils-8.16]
 
 
 * Noteworthy changes in release 8.17 (2012-05-10) [stable]
