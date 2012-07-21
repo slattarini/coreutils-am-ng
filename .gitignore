@@ -3,8 +3,8 @@
 *.bak
 *~
 *.o
-*/.deps/
-*/.am/
+.deps/
+.am/
 ._bootmp
 .gdb-history
 .kludge-stamp
