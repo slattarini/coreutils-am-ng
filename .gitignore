@@ -1,11 +1,11 @@
 *.I[12]
 *.[EIOX]
 *.bak
-*~
 *.o
-.deps/
-.am/
+*~
 ._bootmp
+.am/
+.deps/
 .gdb-history
 .kludge-stamp
 .version
@@ -154,8 +154,8 @@
 /src/version.c
 /src/version.h
 /stamp-h1
-/tests/*/*.trs
 /tests/*/*.log
+/tests/*/*.trs
 /tests/.built-programs
 /tests/t?
 /tests/test-suite.log
