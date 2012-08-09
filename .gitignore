@@ -9,7 +9,7 @@
 .gdb-history
 .kludge-stamp
 .version
-/.mk/
+/build-aux/am-ng
 /ABOUT-NLS
 /ChangeLog
 /GNUmakefile
