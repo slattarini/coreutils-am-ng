@@ -9,7 +9,6 @@
 .gdb-history
 .kludge-stamp
 .version
-/build-aux/am-ng
 /ABOUT-NLS
 /ChangeLog
 /GNUmakefile
@@ -18,6 +17,7 @@
 /aclocal.m4
 /autom4te.cache
 /build-aux/.gitignore
+/build-aux/am-ng
 /build-aux/compile
 /build-aux/config.guess
 /build-aux/config.rpath
@@ -76,6 +76,7 @@
 /lib/ref-del.sed
 /lib/selinux
 /lib/signal.h
+/lib/spawn.h
 /lib/stamp-h1
 /lib/stdalign.h
 /lib/stdio.h
