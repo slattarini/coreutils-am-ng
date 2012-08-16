@@ -98,6 +98,8 @@ TESTS =						\
   chgrp/basic					\
   rm/dangling-symlink				\
   misc/ls-time					\
+  rm/d-1					\
+  rm/d-2					\
   rm/deep-1					\
   rm/deep-2					\
   rm/dir-no-w					\
@@ -376,6 +378,7 @@ TESTS =						\
   df/df-P					\
   df/unreadable					\
   df/total-unprocessed				\
+  df/no-mtab-status				\
   dd/direct					\
   dd/misc					\
   dd/nocache					\
