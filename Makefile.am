@@ -17,6 +17,8 @@
 
 ALL_RECURSIVE_TARGETS =
 
+AM_DIST_FORMATS = xz
+
 SUBDIRS = lib src doc man po tests gnulib-tests
 
 changelog_etc =				\
